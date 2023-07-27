@@ -67,10 +67,10 @@
 <intAttribute key="org.eclipse.cdt.launch.ATTR_BUILD_BEFORE_LAUNCH_ATTR" value="2"/>
 <stringAttribute key="org.eclipse.cdt.launch.COREFILE_PATH" value=""/>
 <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="${cy_prj_path}/build/CY8CPROTO-063-BLE/Debug/dimo-test-fw.hex"/>
-<stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="DiMo_Test_FW"/>
+<stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="DiMo_Controller_MAX9867"/>
 <booleanAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_AUTO_ATTR" value="false"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/DiMo_Test_FW"/>
+<listEntry value="/DiMo_Controller_MAX9867"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="4"/>
