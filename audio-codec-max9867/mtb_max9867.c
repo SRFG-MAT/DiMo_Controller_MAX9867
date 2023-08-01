@@ -42,6 +42,7 @@
 static CySCB_Type *i2c_base_ptr;
 static cy_stc_scb_i2c_context_t *i2c_context_ptr;
 
+/* I2C slave register adresses on max9867 */
 #define MAX9867_I2C_ADDR_WRITE  (0x30) // TODO: check if register working (used to be HP Output Control register: 0x12u)
 #define MAX9867_I2C_ADDR_READ  (0x31) // TODO: check if register working (used to be HP Output Control register: 0x12u)
 
@@ -285,7 +286,7 @@ void mtb_max9867_adjust_volume(uint8_t volume)
 
 /*******************************************************************************
  * Activates the codec - This function is called in conjunction with
- * ak4954A_deactivate API after successful configuration update of the codec.
+ * max9867_deactivate API after successful configuration update of the codec.
  *******************************************************************************/
 void mtb_max9867_activate(void)
 {

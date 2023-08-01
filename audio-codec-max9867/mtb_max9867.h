@@ -146,15 +146,6 @@ typedef enum
 
 
 
-/**
-* \{
-* @name Volume
-* Volume Control Constants
-*/
-
-/** \} Volume */
-
-
 /** Initialization failure error */
 #define CY_RSLT_MAX9867_INIT_FAIL 0 // TODO
 
