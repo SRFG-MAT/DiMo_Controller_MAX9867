@@ -42,7 +42,8 @@
 static CySCB_Type *i2c_base_ptr;
 static cy_stc_scb_i2c_context_t *i2c_context_ptr;
 
-#define MAX9867_I2C_ADDR  (0x12u) // TODO: where is this on the new board? Value is still from old board
+#define MAX9867_I2C_ADDR_WRITE  (0x30) // TODO: check if register working (used to be HP Output Control register: 0x12u)
+#define MAX9867_I2C_ADDR_READ  (0x31) // TODO: check if register working (used to be HP Output Control register: 0x12u)
 
 
 /*******************************************************************************
@@ -62,7 +63,7 @@ cy_rslt_t mtb_max9867_init(CySCB_Type *base, cy_stc_scb_i2c_context_t *context)
     	uint8_t writeBuffer[] = {MAX9867_REG_PWRMAN, 0}; // TODO: Check if working, compare with old board version if not...
 
     	/* Configure write transaction */
-    	transfer.slaveAddress = MAX9867_I2C_ADDR;
+    	transfer.slaveAddress = MAX9867_I2C_ADDR_WRITE;
     	transfer.buffer       = writeBuffer;
     	transfer.bufferSize   = sizeof(writeBuffer);
     	transfer.xferPending  = false; /* Generate Stop condition at the end of transaction */
@@ -117,7 +118,7 @@ void mtb_max9867_write_byte(mtb_max9867_reg_t reg, uint8_t data)
     uint8_t writeBuffer[] = {reg, data};
 
 	/* Configure write transaction */
-	transfer.slaveAddress = MAX9867_I2C_ADDR;
+	transfer.slaveAddress = MAX9867_I2C_ADDR_WRITE;
 	transfer.buffer       = writeBuffer;
 	transfer.bufferSize   = sizeof(writeBuffer);
 	transfer.xferPending  = false; /* Generate Stop condition at the end of transaction */
@@ -163,7 +164,7 @@ void mtb_max9867_write_word(mtb_max9867_reg_t reg, uint16_t data)
     uint8_t writeBuffer[] = {reg, ((uint8_t*)&data)[0], ((uint8_t*)&data)[1]};
 
 	/* Configure write transaction */
-	transfer.slaveAddress = MAX9867_I2C_ADDR;
+	transfer.slaveAddress = MAX9867_I2C_ADDR_WRITE;
 	transfer.buffer       = writeBuffer;
 	transfer.bufferSize   = sizeof(writeBuffer);
 	transfer.xferPending  = false; /* Generate Stop condition at the end of transaction */
@@ -191,7 +192,7 @@ uint8_t mtb_max9867_read_byte(mtb_max9867_reg_t reg)
     uint8_t readBuffer1Byte;
 
 	/* Configure write transaction */
-	transfer.slaveAddress = MAX9867_I2C_ADDR;
+	transfer.slaveAddress = MAX9867_I2C_ADDR_WRITE;
 	transfer.buffer       = writeBuffer;
 	transfer.bufferSize   = sizeof(writeBuffer);
 	transfer.xferPending  = true; /* Do not generate stop condition at the end of transaction (read after write) */
@@ -205,7 +206,7 @@ uint8_t mtb_max9867_read_byte(mtb_max9867_reg_t reg)
     rslt = CY_RSLT_SUCCESS;
 
 	/* Configure read transaction */
-	transfer.slaveAddress = MAX9867_I2C_ADDR;
+	transfer.slaveAddress = MAX9867_I2C_ADDR_READ;
 	transfer.buffer       = &readBuffer1Byte;
 	transfer.bufferSize   = 1;
 	transfer.xferPending  = false; /* Generate Stop condition the end of transaction (stop after read) */
@@ -237,7 +238,7 @@ uint16_t mtb_max9867_read_word(mtb_max9867_reg_t reg)
     uint16_t readBuffer2Bytes;
 
 	/* Configure write transaction */
-	transfer.slaveAddress = MAX9867_I2C_ADDR;
+	transfer.slaveAddress = MAX9867_I2C_ADDR_WRITE;
 	transfer.buffer       = writeBuffer;
 	transfer.bufferSize   = sizeof(writeBuffer);
 	transfer.xferPending  = true; /* Do not generate stop condition at the end of transaction (read after write) */
@@ -251,7 +252,7 @@ uint16_t mtb_max9867_read_word(mtb_max9867_reg_t reg)
     rslt = CY_RSLT_SUCCESS;
 
 	/* Configure read transaction */
-	transfer.slaveAddress = MAX9867_I2C_ADDR;
+	transfer.slaveAddress = MAX9867_I2C_ADDR_READ;
 	transfer.buffer       = &readBuffer2Bytes;
 	transfer.bufferSize   = 2;
 	transfer.xferPending  = false; /* Generate Stop condition the end of transaction (stop after read) */
