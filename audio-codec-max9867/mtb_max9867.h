@@ -121,6 +121,11 @@ typedef enum
 	MAX9867_REG_MICCONFIG = 0x15, /* Microphone */
 	MAX9867_REG_MODECONFIG = 0x16, /* Mode */
 
+    MAX9867_VAL_VOLUME_MAX = (0x00),  		/* VOLL/VOLR = 0x00 to 0x06 (+6dB to +3dB) */	// TODO: From me! Not yet tested!!
+	MAX9867_VAL_VOLUME_DEFAULT = (0x06),  	/* VOLL/VOLR = 0x06 to 0x0F (+3dB to -6dB) */ 	// TODO: From me! Not yet tested!!
+	MAX9867_VAL_VOLUME_MIN = (0x17),  		/* VOLL/VOLR = 0x0F to 0x17 (-6dB to -22dB) */	// TODO: From me! Not yet tested!!
+	MAX9867_VAL_VOLUME_MUTE = (0x3F), 		/* VOLL/VOLR = 0x17 to 0x3F (-22dB to mute) */ 	// TODO: From me! Not yet tested!!
+
 	//---------------------------------------------------------------------------------------------
 	// POWER MANAGEMENT
 	//---------------------------------------------------------------------------------------------
@@ -129,12 +134,25 @@ typedef enum
 
 	MAX9867_BITSET_PWRMAN_SHDN = (1<<7), /* Set SHDN bit in register "System Shutdown" */
 
+	MAX9867_MASK_ACTIVATE = 0x6C, /* 01101100 */							// TODO: From me! Not yet tested!!
+	MAX9867_MASK_DEACTIVATE = MAX9867_BITSET_PWRMAN_SHDN, /* 10000000 */	// TODO: From me! Not yet tested!!
+
 	//---------------------------------------------------------------------------------------------
 	// OTHERS (unused)
 	//---------------------------------------------------------------------------------------------
 	MAX9867_VAL_CACHEREGNUM = 10 /**/
 
 } mtb_max9867_reg_t;
+
+
+
+/**
+* \{
+* @name Volume
+* Volume Control Constants
+*/
+
+/** \} Volume */
 
 
 /** Initialization failure error */

@@ -42,7 +42,8 @@
 /*******************************************************************************
  * Include header files
  ******************************************************************************/
-#include "audio-codec-ak4954a/release-v1.0.1-ported-to-pdl-lib/mtb_ak4954a.h"
+//#include "audio-codec-ak4954a/release-v1.0.1-ported-to-pdl-lib/mtb_ak4954a.h"
+#include "audio-codec-max9867/mtb_max9867.h"
 #include "cybsp.h"
 #include "cy_pdl.h"
 #include "cyhal.h"
@@ -183,14 +184,14 @@ int main(void)
 
     /** *********** AUDIO, Config-Part (3) = AK494A chip-specific configuration (via I2C) ************************** **/
 	/* Configure the AK494A codec and enable it */
-	result = mtb_ak4954a_init(I2C_MASTER_HW, &I2C_MASTER_Context);
+	result = mtb_max9867_init(I2C_MASTER_HW, &I2C_MASTER_Context);
 	if (CYRET_SUCCESS != result)
 	{
 		/* Halt the CPU if AK494A initialization failed */
 		CY_ASSERT(0);
 	}
-	mtb_ak4954a_activate();
-	mtb_ak4954a_adjust_volume(AK4954A_HP_VOLUME_DEFAULT);
+	mtb_max9867_activate();
+	mtb_max9867_adjust_volume(MAX9867_VAL_VOLUME_DEFAULT);
     /* ******************************************************************************** */
 
 
@@ -219,9 +220,7 @@ int main(void)
 
     		playExhale();
     		play_delay();
-
     }
-
 }
 
 

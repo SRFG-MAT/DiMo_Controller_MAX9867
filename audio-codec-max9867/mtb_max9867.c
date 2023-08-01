@@ -35,13 +35,14 @@
  *
  */
 
-
 #include "mtb_max9867.h"
 #include <stdbool.h>
 
 /* These 2 globals are used for accessing the I2C (base-pointer to hw-interface and context storing the state) */
 static CySCB_Type *i2c_base_ptr;
 static cy_stc_scb_i2c_context_t *i2c_context_ptr;
+
+#define MAX9867_I2C_ADDR  (0x12u) // TODO: where is this on the new board? Value is still from old board
 
 
 /*******************************************************************************
@@ -58,7 +59,7 @@ cy_rslt_t mtb_max9867_init(CySCB_Type *base, cy_stc_scb_i2c_context_t *context)
 	// TODO: see original docu here
     {
     	cy_stc_scb_i2c_master_xfer_config_t transfer;
-    	uint8_t writeBuffer[] = {MAX9867_REG_PWR_MGMT1, 0};
+    	uint8_t writeBuffer[] = {MAX9867_REG_PWRMAN, 0}; // TODO: Check if working, compare with old board version if not...
 
     	/* Configure write transaction */
     	transfer.slaveAddress = MAX9867_I2C_ADDR;
@@ -68,30 +69,29 @@ cy_rslt_t mtb_max9867_init(CySCB_Type *base, cy_stc_scb_i2c_context_t *context)
 
     	/* Initiate I2C-write transaction. */
     	Cy_SCB_I2C_MasterWrite(i2c_base_ptr, &transfer, i2c_context_ptr);
+
     	/* Blocking-Wait for transaction completion */
-    	//xxxx TODO: Error handling (currently it would get stuck in case of "NACK"
     	while (0UL != (CY_SCB_I2C_MASTER_BUSY & Cy_SCB_I2C_MasterGetStatus(i2c_base_ptr, i2c_context_ptr))) {}
 
     	/* Initiate I2C-write transaction. */
     	Cy_SCB_I2C_MasterWrite(i2c_base_ptr, &transfer, i2c_context_ptr);
 
     	/* Blocking-Wait for transaction completion */
-    	//xxxx TODO: Error handling (currently it would get stuck in case of "NACK"
     	while (0UL != (CY_SCB_I2C_MASTER_BUSY & Cy_SCB_I2C_MasterGetStatus(i2c_base_ptr, i2c_context_ptr))) {}
     }
 
-    /* Clear Power Managament 1 register */
-    mtb_max9867_write_byte(MAX9867_REG_PWR_MGMT1, 0x00);
+    /* Clear Power Managament register */
+    mtb_max9867_write_byte(MAX9867_REG_PWRMAN, 0x00);
 
     /* Set the data alignment */
-    mtb_max9867_write_byte(MAX9867_REG_MODE_CTRL1, MAX9867_DEF_DATA_ALIGNMENT);
+    mtb_max9867_write_byte(MAX9867_REG_AUDIOCLKHIGH, MAX9867_MASK_NI_HIGH); // TODO: Check if working, compare with old board version if not...
+    mtb_max9867_write_byte(MAX9867_REG_AUDIOCLKLOW, MAX9867_MASK_NI_LOW); // TODO: Check if working, compare with old board version if not...
 
     /* Set sample rate */
-    mtb_max9867_write_byte(MAX9867_REG_MODE_CTRL2, MAX9867_DEF_SAMPLING_RATE |
-                                                   MAX9867_MODE_CTRL2_FS_48kHz);
+    mtb_max9867_write_byte(MAX9867_REG_SYSCLK, MAX9867_MASK_FREQ); // TODO: Check if working, compare with old board version if not...
 
     /* Clear Digital Filter Mode register */
-    mtb_max9867_write_byte(MAX9867_REG_DIG_FLTR_MODE, 0x00);
+    mtb_max9867_write_byte(MAX9867_REG_CODECFLTR, 0x00); // TODO: Check if working, compare with old board version if not...
 
     return CYRET_SUCCESS;
 }
@@ -126,7 +126,6 @@ void mtb_max9867_write_byte(mtb_max9867_reg_t reg, uint8_t data)
 	Cy_SCB_I2C_MasterWrite(i2c_base_ptr, &transfer, i2c_context_ptr);
 
 	/* Blocking-Wait for transaction completion */
-	//xxxx TODO: Error handling (currently it would get stuck in case of "NACK"
 	while (0UL != (CY_SCB_I2C_MASTER_BUSY & Cy_SCB_I2C_MasterGetStatus(i2c_base_ptr, i2c_context_ptr))) {}
 
     rslt = CY_RSLT_SUCCESS;
@@ -173,7 +172,6 @@ void mtb_max9867_write_word(mtb_max9867_reg_t reg, uint16_t data)
 	Cy_SCB_I2C_MasterWrite(i2c_base_ptr, &transfer, i2c_context_ptr);
 
 	/* Blocking-Wait for transaction completion */
-	//xxxx TODO: Error handling (currently it would get stuck in case of "NACK"
 	while (0UL != (CY_SCB_I2C_MASTER_BUSY & Cy_SCB_I2C_MasterGetStatus(i2c_base_ptr, i2c_context_ptr))) {}
 
     rslt = CY_RSLT_SUCCESS;
@@ -202,7 +200,6 @@ uint8_t mtb_max9867_read_byte(mtb_max9867_reg_t reg)
 	Cy_SCB_I2C_MasterWrite(i2c_base_ptr, &transfer, i2c_context_ptr);
 
 	/* Blocking-Wait for transaction completion */
-	//xxxx TODO: Error handling (currently it would get stuck in case of "NACK"
 	while (0UL != (CY_SCB_I2C_MASTER_BUSY & Cy_SCB_I2C_MasterGetStatus(i2c_base_ptr, i2c_context_ptr))) {}
 
     rslt = CY_RSLT_SUCCESS;
@@ -220,7 +217,6 @@ uint8_t mtb_max9867_read_byte(mtb_max9867_reg_t reg)
 	Cy_SCB_I2C_MasterRead(i2c_base_ptr, &transfer, i2c_context_ptr);
 
 	/* Blocking-Wait for transaction completion */
-	//xxxx TODO: Error handling (currently it would get stuck in case of "NACK"
 	while (0UL != (CY_SCB_I2C_MASTER_BUSY & Cy_SCB_I2C_MasterGetStatus(i2c_base_ptr, i2c_context_ptr))) {}
 
     rslt = CY_RSLT_SUCCESS;
@@ -250,7 +246,6 @@ uint16_t mtb_max9867_read_word(mtb_max9867_reg_t reg)
 	Cy_SCB_I2C_MasterWrite(i2c_base_ptr, &transfer, i2c_context_ptr);
 
 	/* Blocking-Wait for transaction completion */
-	//xxxx TODO: Error handling (currently it would get stuck in case of "NACK"
 	while (0UL != (CY_SCB_I2C_MASTER_BUSY & Cy_SCB_I2C_MasterGetStatus(i2c_base_ptr, i2c_context_ptr))) {}
 
     rslt = CY_RSLT_SUCCESS;
@@ -268,7 +263,6 @@ uint16_t mtb_max9867_read_word(mtb_max9867_reg_t reg)
 	Cy_SCB_I2C_MasterRead(i2c_base_ptr, &transfer, i2c_context_ptr);
 
 	/* Blocking-Wait for transaction completion */
-	//xxxx TODO: Error handling (currently it would get stuck in case of "NACK"
 	while (0UL != (CY_SCB_I2C_MASTER_BUSY & Cy_SCB_I2C_MasterGetStatus(i2c_base_ptr, i2c_context_ptr))) {}
 
     rslt = CY_RSLT_SUCCESS;
@@ -284,8 +278,8 @@ uint16_t mtb_max9867_read_word(mtb_max9867_reg_t reg)
  *******************************************************************************/
 void mtb_max9867_adjust_volume(uint8_t volume)
 {
-    mtb_max9867_write_byte(MAX9867_REG_LCH_DIG_VOL_CTRL, volume);
-    mtb_max9867_write_byte(MAX9867_REG_RCH_DIG_VOL_CTRL, volume);
+    mtb_max9867_write_byte(MAX9867_REG_LEFTVOL, volume); // TODO: Check if working, compare with old board version if not...
+    mtb_max9867_write_byte(MAX9867_REG_RIGHTVOL, volume); // TODO: Check if working, compare with old board version if not...
 }
 
 /*******************************************************************************
@@ -295,10 +289,8 @@ void mtb_max9867_adjust_volume(uint8_t volume)
 void mtb_max9867_activate(void)
 {
     /* Enable Power Management DAC */
-    mtb_max9867_write_byte(MAX9867_REG_PWR_MGMT1, MAX9867_PWR_MGMT1_PMDAC | MAX9867_PWR_MGMT1_PMVCM);
-
-    /* Enable Left/Right Channels */
-    mtb_max9867_write_byte(MAX9867_REG_PWR_MGMT2, MAX9867_PWR_MGMT2_PMHPL | MAX9867_PWR_MGMT2_PMHPR);
+	/* Enable Left/Right Channels */
+    mtb_max9867_write_byte(MAX9867_REG_PWRMAN, MAX9867_MASK_ACTIVATE); // TODO: Check if working, compare with old board version if not...
 }
 
 /*******************************************************************************
@@ -309,10 +301,8 @@ void mtb_max9867_activate(void)
 void mtb_max9867_deactivate(void)
 {
     /* Disable Left/Right Channels */
-    mtb_max9867_write_byte(MAX9867_REG_PWR_MGMT2, 0x00);
-
     /* Disable Power Management DAC */
-    mtb_max9867_write_byte(MAX9867_REG_PWR_MGMT1, MAX9867_PWR_MGMT1_PMVCM);
+	mtb_max9867_write_byte(MAX9867_REG_PWRMAN, MAX9867_MASK_DEACTIVATE); // TODO: Check if working, compare with old board version if not...
 }
 
 /* [] END OF FILE */
