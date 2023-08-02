@@ -28,7 +28,7 @@
 #include <stdint.h>
 #include "cy_pdl.h"
 #include "cy_result.h"
-//#include "cyhal_i2c.h"
+#include "cyhal_i2c.h"
 
 #if defined(__cplusplus)
 extern "C"
@@ -75,6 +75,7 @@ typedef enum
 	MAX9867_MASK_FREQ = 0xF, /* MASK for FREQ: register value = 00001111*/
 	MAX9867_MASK_NI_HIGH = 0x7F, /* MASK for NI: register value = 01111111*/
 	MAX9867_MASK_NI_LOW	= 0xFE, /* MASK for NI: register value = 11111110 */
+
 
 	//---------------------------------------------------------------------------------------------
 	// DIGITAL AUDIO INTERFACE
@@ -156,7 +157,7 @@ typedef enum
 
 
 /** Initialization failure error */
-#define CY_RSLT_MAX9867_INIT_FAIL 0 // TODO
+#define CY_RSLT_MAX9867_INIT_FAIL 1 // TODO
 
 /**
  * Initialize the I2C communication with the audio codec and do basic configuration of
@@ -202,7 +203,7 @@ void mtb_max9867_deactivate(void);
  * @param[in] reg   The audio codec register to update
  * @param[in] data  The byte to be written to the audio codec register
  */
-void mtb_max9867_write_byte(mtb_max9867_reg_t reg, uint8_t data);
+cy_rslt_t mtb_max9867_write_byte(mtb_max9867_reg_t reg, uint8_t data);
 
 /**
  * This function sets bits in a register.  This function can be used instead

@@ -43,12 +43,13 @@
  * Include header files
  ******************************************************************************/
 //#include "audio-codec-ak4954a/release-v1.0.1-ported-to-pdl-lib/mtb_ak4954a.h"
-#include "audio-codec-max9867/mtb_max9867.h"
+#include "audio_codec/mtb_max9867.h"
 #include "cybsp.h"
 #include "cy_pdl.h"
 #include "cyhal.h"
 #include "cycfg.h"
 #include "cycfg_peripherals.h"
+#include "led.h"
 
 #include "MUS_Tribal_Kick_st_os_01.h"
 #include "SFX_Tribal_Inhale_st_os_01.h"
@@ -82,7 +83,7 @@ uint8_t I2C_MASTER_WriteBuffer[I2C_MASTER_BUFFER_SIZE]; // Allocate TX buffer
 
 /* Assign I2C interrupt number and priority */
 // REMARK: Check "Device Configurator" which SCB_x Number it is (different SCBs are hard-wired to different IO-Pins...)
-#define I2C_INTR_NUM        scb_6_interrupt_IRQn
+#define I2C_INTR_NUM        scb_2_interrupt_IRQn
 #define I2C_INTR_PRIORITY   (7UL)
 
 
@@ -141,6 +142,8 @@ int main(void)
     __enable_irq(); // Remark: Already must be enabled here, required for the audio configuration
 
 
+    initLed();
+    setStatus(1, 0);
     /* *********** AUDIO, Config-Part (1) = I2S HW-Interface ************************** */
     // Init I2S HW-interface (output of audio stream)
     if(CY_I2S_SUCCESS != Cy_I2S_Init(I2S0, &AUDIO_I2S_config))
@@ -196,10 +199,11 @@ int main(void)
 
 
     // Initialize LED: Turn off (remark: LED is inverse, turned off "by setting GPIO = 1")
-	Cy_GPIO_Set(CYBSP_LED3_PORT, CYBSP_LED3_PIN);
 
     /* Enable global interrupts */
     __enable_irq();
+    setStatus(0, 1);
+
 
     while(1) {
 
@@ -210,6 +214,7 @@ int main(void)
     		play_delay();
 
     		playInhale();
+    		toggleRed();
     		play_delay();
 
     		playKick();
@@ -220,6 +225,7 @@ int main(void)
 
     		playExhale();
     		play_delay();
+    		toggleGreen();
     }
 }
 

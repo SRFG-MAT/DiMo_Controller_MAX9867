@@ -43,7 +43,8 @@
 #include "../release-v1.0.1-ported-to-pdl-lib/mtb_ak4954a.h"
 
 #include <stdbool.h>
-
+#include "cy_result.h"
+#include "cyhal_i2c.h"
 
 /* I2C-Address of the Audio-Chip AK4954A */
 #define AK4954A_I2C_ADDR  (0x12u)

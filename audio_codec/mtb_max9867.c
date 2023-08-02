@@ -36,7 +36,12 @@
  */
 
 #include "mtb_max9867.h"
+
 #include <stdbool.h>
+#include "cy_result.h"
+#include "cyhal_i2c.h"
+
+#define MAX_SYSCLOCK_SETTING (0x3f)
 
 /* These 2 globals are used for accessing the I2C (base-pointer to hw-interface and context storing the state) */
 static CySCB_Type *i2c_base_ptr;
@@ -51,50 +56,48 @@ static cy_stc_scb_i2c_context_t *i2c_context_ptr;
  *******************************************************************************/
 cy_rslt_t mtb_max9867_init(CySCB_Type *base, cy_stc_scb_i2c_context_t *context)
 {
-    if (base == NULL)
+    if (base == NULL) {
         return CY_RSLT_MAX9867_INIT_FAIL;
+    }
 
 	i2c_base_ptr = base;
 	i2c_context_ptr = context;
 
 	// TODO: see original docu here
-    {
-    	cy_stc_scb_i2c_master_xfer_config_t transfer;
-    	uint8_t writeBuffer[] = {MAX9867_REG_PWRMAN, 0}; // TODO: Check if working, compare with old board version if not...
+	cy_stc_scb_i2c_master_xfer_config_t transfer;
+	uint8_t writeBuffer[] = {MAX9867_REG_PWRMAN, 0x00}; // TODO: Check if working, compare with old board version if not...
 
-    	/* Configure write transaction */
-    	transfer.slaveAddress = MAX9867_I2C_ADDR_WRITE;
-    	transfer.buffer       = writeBuffer;
-    	transfer.bufferSize   = sizeof(writeBuffer);
-    	transfer.xferPending  = false; /* Generate Stop condition at the end of transaction */
+	/* Configure write transaction */
+	transfer.slaveAddress = MAX9867_I2C_ADDR_WRITE;
+	transfer.buffer       = writeBuffer;
+	transfer.bufferSize   = sizeof(writeBuffer);
+	transfer.xferPending  = false; /* Generate Stop condition at the end of transaction */
 
-    	/* Initiate I2C-write transaction. */
-    	Cy_SCB_I2C_MasterWrite(i2c_base_ptr, &transfer, i2c_context_ptr);
+	/* Initiate I2C-write transaction. */
+	Cy_SCB_I2C_MasterWrite(i2c_base_ptr, &transfer, i2c_context_ptr);
+	int32_t watchdog = 15536;
 
-    	/* Blocking-Wait for transaction completion */
-    	while (0UL != (CY_SCB_I2C_MASTER_BUSY & Cy_SCB_I2C_MasterGetStatus(i2c_base_ptr, i2c_context_ptr))) {}
+	/* Blocking-Wait for transaction completion */
+	while (0UL != (CY_SCB_I2C_MASTER_BUSY & Cy_SCB_I2C_MasterGetStatus(i2c_base_ptr, i2c_context_ptr)) && watchdog > 0) {
+		watchdog--;
+	}
+	if (watchdog ==0) return CY_RSLT_MAX9867_INIT_FAIL;
 
-    	/* Initiate I2C-write transaction. */
-    	Cy_SCB_I2C_MasterWrite(i2c_base_ptr, &transfer, i2c_context_ptr);
-
-    	/* Blocking-Wait for transaction completion */
-    	while (0UL != (CY_SCB_I2C_MASTER_BUSY & Cy_SCB_I2C_MasterGetStatus(i2c_base_ptr, i2c_context_ptr))) {}
-    }
 
     /* Clear Power Managament register */
     mtb_max9867_write_byte(MAX9867_REG_PWRMAN, 0x00);
 
-    /* Set the data alignment */
-    mtb_max9867_write_byte(MAX9867_REG_AUDIOCLKHIGH, MAX9867_MASK_NI_HIGH); // TODO: Check if working, compare with old board version if not...
-    mtb_max9867_write_byte(MAX9867_REG_AUDIOCLKLOW, MAX9867_MASK_NI_LOW); // TODO: Check if working, compare with old board version if not...
+    /* Init Clock */
+    mtb_max9867_write_byte(MAX9867_REG_SYSCLK, MAX_SYSCLOCK_SETTING); // TODO: Check if working, compare with old board version if not...
 
-    /* Set sample rate */
-    mtb_max9867_write_byte(MAX9867_REG_SYSCLK, MAX9867_MASK_FREQ); // TODO: Check if working, compare with old board version if not...
+
+    /* Init Audio Interface */
+    mtb_max9867_write_byte(MAX9867_REG_IFC1A, 0x00); // TODO: Check if working, compare with old board version if not...
 
     /* Clear Digital Filter Mode register */
     mtb_max9867_write_byte(MAX9867_REG_CODECFLTR, 0x00); // TODO: Check if working, compare with old board version if not...
 
-    return CYRET_SUCCESS;
+	return CY_RSLT_SUCCESS;
 }
 
 
@@ -110,9 +113,8 @@ void mtb_max9867_free(void)
 /*******************************************************************************
  * This function writes a data byte to an audio codec register
  *******************************************************************************/
-void mtb_max9867_write_byte(mtb_max9867_reg_t reg, uint8_t data)
+cy_rslt_t mtb_max9867_write_byte(mtb_max9867_reg_t reg, uint8_t data)
 {
-    cy_rslt_t rslt;
     cy_stc_scb_i2c_master_xfer_config_t transfer;
 
     uint8_t writeBuffer[] = {reg, data};
@@ -127,9 +129,13 @@ void mtb_max9867_write_byte(mtb_max9867_reg_t reg, uint8_t data)
 	Cy_SCB_I2C_MasterWrite(i2c_base_ptr, &transfer, i2c_context_ptr);
 
 	/* Blocking-Wait for transaction completion */
-	while (0UL != (CY_SCB_I2C_MASTER_BUSY & Cy_SCB_I2C_MasterGetStatus(i2c_base_ptr, i2c_context_ptr))) {}
+	uint32_t watchdog = 15536;
+	while (0UL != (CY_SCB_I2C_MASTER_BUSY & Cy_SCB_I2C_MasterGetStatus(i2c_base_ptr, i2c_context_ptr)) && watchdog !=0) {
+		watchdog--;
+	}
 
-    rslt = CY_RSLT_SUCCESS;
+	if (watchdog !=0) return CY_RSLT_SUCCESS;
+	return CY_RSLT_MAX9867_INIT_FAIL;
 }
 
 
