@@ -40,7 +40,7 @@ TARGET=CY8CPROTO-063-BLE
 # 
 # If APPNAME is edited, ensure to update or regenerate launch 
 # configurations for your IDE.
-APPNAME=dimo-test-fw
+APPNAME=DiMo_Controller_MAX9867
 
 # Name of toolchain to use. Options include:
 #
